@@ -42,8 +42,11 @@ function deriveOriginParts(rawUrl) {
 }
 
 async function listCredentials(req, res) {
-  const { client, service, hostname, search, favorite, page = 1, limit = 100 } = req.query;
-  const query = { isActive: true };
+  const { client, service, hostname, search, favorite, status = 'active', page = 1, limit = 100 } = req.query;
+  const query = {};
+  if (status === 'active') query.isActive = true;
+  else if (status === 'inactive') query.isActive = false;
+  // status === 'all' -> no isActive filter at all
   if (client) query.client = client;
   if (service) query.service = service;
   if (hostname) query.hostname = hostname.toLowerCase();
@@ -225,6 +228,24 @@ async function deleteCredential(req, res) {
 }
 
 /**
+ * Reverses deleteCredential's soft delete. Kept as its own endpoint
+ * (rather than folded into updateCredential's generic isActive toggle)
+ * so it gets its own clear audit action.
+ */
+async function reactivateCredential(req, res) {
+  const cred = await Credential.findById(req.params.id);
+  if (!cred) throw ApiError.notFound('Credential not found');
+
+  cred.isActive = true;
+  cred.updatedBy = req.user._id;
+  await cred.save();
+
+  await recordAudit({ req, action: 'CREDENTIAL_REACTIVATED', client: cred.client, credential: cred._id });
+
+  res.json({ message: 'Credential reactivated', credential: toDTO(cred) });
+}
+
+/**
  * Returns the decrypted password. This is the ONLY endpoint that ever
  * emits plaintext, requires canRevealPasswords, and is always audited.
  */
@@ -308,6 +329,7 @@ module.exports = {
   createCredential,
   updateCredential,
   deleteCredential,
+  reactivateCredential,
   revealCredential,
   copyCredential,
   fillCredential,

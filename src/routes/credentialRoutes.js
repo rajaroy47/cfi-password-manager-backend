@@ -29,6 +29,7 @@ router.post(
 
 router.put('/:id', requirePermission('canEditCredentials'), ctrl.updateCredential);
 router.delete('/:id', requirePermission('canDeleteCredentials'), ctrl.deleteCredential);
+router.post('/:id/reactivate', requirePermission('canDeleteCredentials'), ctrl.reactivateCredential);
 
 router.post('/:id/reveal', revealLimiter, ctrl.revealCredential);
 router.post('/:id/copy', revealLimiter, ctrl.copyCredential);
