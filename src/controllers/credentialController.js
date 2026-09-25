@@ -164,7 +164,24 @@ async function updateCredential(req, res) {
   const cred = await Credential.findById(req.params.id);
   if (!cred) throw ApiError.notFound('Credential not found');
 
-  const { websiteName, websiteUrl, username, password, notes, isFavorite, isActive } = req.body;
+  const { client, service, websiteName, websiteUrl, username, password, notes, isFavorite, isActive } = req.body;
+
+  let clientChanged = false;
+  let serviceChanged = false;
+
+  if (client !== undefined && String(client) !== String(cred.client)) {
+    const clientDoc = await Client.findById(client);
+    if (!clientDoc) throw ApiError.badRequest('Referenced client does not exist');
+    cred.client = client;
+    clientChanged = true;
+  }
+
+  if (service !== undefined && String(service) !== String(cred.service)) {
+    const serviceDoc = await Service.findById(service);
+    if (!serviceDoc) throw ApiError.badRequest('Referenced service does not exist');
+    cred.service = service;
+    serviceChanged = true;
+  }
 
   if (websiteUrl) {
     const { hostname, origin } = deriveOriginParts(websiteUrl);
@@ -187,7 +204,7 @@ async function updateCredential(req, res) {
     action: 'CREDENTIAL_UPDATED',
     client: cred.client,
     credential: cred._id,
-    meta: { websiteName: cred.websiteName, passwordChanged: !!password },
+    meta: { websiteName: cred.websiteName, passwordChanged: !!password, clientChanged, serviceChanged },
   });
 
   res.json({ credential: toDTO(cred) });
