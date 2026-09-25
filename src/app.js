@@ -27,7 +27,22 @@ app.set('trust proxy', 1); // needed for correct req.ip behind a LAN reverse pro
 app.use(helmet());
 app.use(
   cors({
-    origin: env.corsOrigin.length ? env.corsOrigin : false,
+    origin(origin, callback) {
+      // Non-browser requests (health checks, curl, internal services).
+      if (!origin) return callback(null, true);
+
+      // Allow the configured admin dashboard origins.
+      if (env.corsOrigin.includes(origin)) return callback(null, true);
+
+      // Chrome extension requests carry a chrome-extension:// Origin.
+      // The extension is authenticated with its own JWT and can only reach
+      // this company's API because host_permissions are scoped to the API.
+      if (/^chrome-extension:\/\/[a-z]{32}$/i.test(origin)) {
+        return callback(null, true);
+      }
+
+      return callback(new Error('CORS origin not allowed'));
+    },
     credentials: true,
   })
 );
