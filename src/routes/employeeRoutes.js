@@ -2,10 +2,13 @@ const express = require('express');
 const { body } = require('express-validator');
 const ctrl = require('../controllers/employeeController');
 const { authenticate, requirePermission } = require('../middleware/auth');
+const { authenticatedApiLimiter } = require('../middleware/rateLimiter');
 const { validate } = require('../middleware/validate');
 
 const router = express.Router();
-router.use(authenticate, requirePermission('canManageEmployees'));
+router.use(authenticate);
+router.use(authenticatedApiLimiter);
+router.use(requirePermission('canManageEmployees'));
 
 router.get('/', ctrl.listEmployees);
 router.get('/:id', ctrl.getEmployee);

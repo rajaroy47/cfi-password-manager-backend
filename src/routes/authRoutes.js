@@ -17,6 +17,6 @@ router.post(
 
 router.post('/refresh', authLimiter, [body('refreshToken').notEmpty()], validate, ctrl.refresh);
 router.post('/logout', ctrl.logout);
-router.get('/me', authenticate, ctrl.me);
+router.get('/me', authenticate, require('../middleware/rateLimiter').authenticatedApiLimiter, ctrl.me);
 
 module.exports = router;

@@ -2,11 +2,13 @@ const express = require('express');
 const { body } = require('express-validator');
 const ctrl = require('../controllers/credentialController');
 const { authenticate, requirePermission } = require('../middleware/auth');
+const { authenticatedApiLimiter } = require('../middleware/rateLimiter');
 const { validate } = require('../middleware/validate');
 const { revealLimiter } = require('../middleware/rateLimiter');
 
 const router = express.Router();
 router.use(authenticate);
+router.use(authenticatedApiLimiter);
 
 router.get('/match', ctrl.matchCredentials); // used by the extension for autofill matching
 router.get('/', ctrl.listCredentials);

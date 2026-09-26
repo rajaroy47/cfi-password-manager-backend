@@ -7,7 +7,6 @@ const morgan = require('morgan');
 const mongoSanitize = require('express-mongo-sanitize');
 
 const env = require('./config/env');
-const { apiLimiter } = require('./middleware/rateLimiter');
 const { sanitizeBody } = require('./middleware/validate');
 const { errorHandler, notFoundHandler } = require('./middleware/errorHandler');
 
@@ -18,6 +17,7 @@ const employeeRoutes = require('./routes/employeeRoutes');
 const serviceRoutes = require('./routes/serviceRoutes');
 const auditLogRoutes = require('./routes/auditLogRoutes');
 const dashboardRoutes = require('./routes/dashboardRoutes');
+const searchRoutes = require('./routes/searchRoutes');
 
 const app = express();
 
@@ -51,7 +51,6 @@ app.use(express.json({ limit: '1mb' }));
 app.use(mongoSanitize()); // strips $ and . operators from req.body/query/params
 app.use(sanitizeBody);
 app.use(morgan(env.nodeEnv === 'production' ? 'combined' : 'dev'));
-app.use(apiLimiter);
 
 app.get('/health', (req, res) => res.json({ status: 'ok', time: new Date().toISOString() }));
 
@@ -62,6 +61,7 @@ app.use('/api/employees', employeeRoutes);
 app.use('/api/services', serviceRoutes);
 app.use('/api/audit-logs', auditLogRoutes);
 app.use('/api/dashboard', dashboardRoutes);
+app.use('/api/search', searchRoutes);
 
 app.use(notFoundHandler);
 app.use(errorHandler);

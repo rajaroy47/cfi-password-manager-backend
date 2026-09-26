@@ -1,9 +1,11 @@
 const express = require('express');
 const ctrl = require('../controllers/serviceController');
 const { authenticate, requireRole } = require('../middleware/auth');
+const { authenticatedApiLimiter } = require('../middleware/rateLimiter');
 
 const router = express.Router();
 router.use(authenticate);
+router.use(authenticatedApiLimiter);
 
 router.get('/', ctrl.listServices);
 router.post('/', ctrl.createService);

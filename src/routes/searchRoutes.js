@@ -1,13 +1,13 @@
 const express = require('express');
-const ctrl = require('../controllers/auditLogController');
-const { authenticate, requireRole } = require('../middleware/auth');
+const ctrl = require('../controllers/searchController');
+const { authenticate } = require('../middleware/auth');
 const { authenticatedApiLimiter } = require('../middleware/rateLimiter');
 
 const router = express.Router();
+
 router.use(authenticate);
 router.use(authenticatedApiLimiter);
-router.use(requireRole('ADMIN'));
 
-router.get('/', ctrl.listAuditLogs);
+router.get('/', ctrl.search);
 
 module.exports = router;
