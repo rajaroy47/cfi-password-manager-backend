@@ -33,7 +33,7 @@ async function listClients(req, res) {
   }
 
   const pageNum = Math.max(parseInt(page, 10) || 1, 1);
-  const limitNum = Math.min(parseInt(limit, 10) || 50, 200);
+  const limitNum = Math.min(parseInt(limit, 10) || 50, 500);
 
   const [clients, total] = await Promise.all([
     Client.find(query)

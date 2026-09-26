@@ -26,7 +26,7 @@ function credentialDTO(cred) {
 
 async function search(req, res) {
   const raw = String(req.query.q || '').trim();
-  const limit = Math.min(Math.max(parseInt(req.query.limit, 10) || 20, 1), 50);
+  const limit = Math.min(Math.max(parseInt(req.query.limit, 10) || 20, 1), 500);
 
   if (!raw) {
     return res.json({ clients: [], credentials: [], totalClients: 0, totalCredentials: 0 });
