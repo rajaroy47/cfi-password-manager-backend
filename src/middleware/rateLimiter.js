@@ -33,7 +33,7 @@ const authenticatedApiLimiter = rateLimit({
 // return plaintext secrets and are audited.
 const revealLimiter = rateLimit({
   windowMs: 5 * 60 * 1000,
-  max: 120,
+  max: 3000,
   standardHeaders: true,
   legacyHeaders: false,
   keyGenerator: (req) => {
